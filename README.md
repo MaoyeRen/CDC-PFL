@@ -1,9 +1,11 @@
 # Personalized federated learning A Clustered Distributed Co Mete Learning approach
-* Official code for the manuscript:
+Official code for the manuscript:
 
 Personalized federated learning: A Clustered Distributed Co-Meta-Learning approach
 
-* Contributions of the paper:
+<br/>
+
+Contributions of the paper:
 
 • We formulate a new learning problem, and propose a DCML learning approach for this problem.
 
