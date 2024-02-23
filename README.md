@@ -3,10 +3,14 @@ Official code for the manuscript:
 
 Personalized federated learning: A Clustered Distributed Co-Meta-Learning approach
 
-Contributions:
+Contributions of the paper:
+
 • We formulate a new learning problem, and propose a DCML learning approach for this problem.
+
 • We propose a CDC-PFL framework, based on this new DCML approach.
+
 • We study a CAE method to optimize the objective function of our CDC-PFL framework, which can reduce the computational cost.
+
 • We establish the convergence properties of the proposed CAE-CDCPFL on the non-convex and non-IID problems, and characterize the effects of some parameters on the algorithm convergence.
 
 
