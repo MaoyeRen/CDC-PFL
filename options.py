@@ -11,12 +11,12 @@ def args_parser():
 
     parser.add_argument('--epochs', type=int, default=10,
                         help="number of rounds of training")
-    parser.add_argument('--num_org', type=int, default=5,
-                        help="number of users: K")  #org indicate the virtual cluster node
-    parser.add_argument('--num_each_org_user', type=str, default=[20]*5,
+    parser.add_argument('--num_vcn', type=int, default=5,
+                        help="number of users: K")  #vcn indicate the virtual cluster node
+    parser.add_argument('--num_each_vcn_user', type=str, default=[20]*5,
                         help="number of users: K")
 
-    parser.add_argument('--frac_orgs', type=float, default=0.1,
+    parser.add_argument('--frac_vcns', type=float, default=0.1,
                         help='the fraction of clients: C')
     parser.add_argument('--frac_users', type=float, default=0.1,
                         help='the fraction of clients: C')
@@ -29,7 +29,7 @@ def args_parser():
                         help="local batch size: B")
     parser.add_argument('--local_ep', type=int, default=10,
                         help="the number of local epochs: E")
-    parser.add_argument('--org_epoch', type=int, default=1,
+    parser.add_argument('--vcn_epoch', type=int, default=1,
                         help="the number of local epochs: E")
 
     parser.add_argument('--lr', type=float, default=0.01,
@@ -66,7 +66,7 @@ def args_parser():
                         of optimizer")
     parser.add_argument('--useriid', type=int, default=1,
                         help='Default set to IID. Set to 0 for non-IID.')
-    parser.add_argument('--orgiid', type=int, default=1,
+    parser.add_argument('--vcniid', type=int, default=1,
                         help='Default set to IID. Set to 0 for non-IID.')
 
     parser.add_argument('--two_classes', type=int, default=0,
