@@ -113,7 +113,7 @@ def test_inference_fastweight(args, model, train_dataset,user_groups, device, vo
 
 
 
-def test_inference(args, model, model_new, train_dataset,user_groups, test_dataset, org_test_all_class, device, vocab=0):
+def test_inference(args, model, model_new, train_dataset,user_groups, test_dataset, vcn_test_all_class, device, vocab=0):
 
 
 
@@ -126,7 +126,7 @@ def test_inference(args, model, model_new, train_dataset,user_groups, test_datas
     if args.dataset == 'dbpedia':
         pass
     else:
-        testloader_corresponding = DataLoader(DatasetSplit(test_dataset, org_test_all_class, args),batch_size=len(org_test_all_class),
+        testloader_corresponding = DataLoader(DatasetSplit(test_dataset, vcn_test_all_class, args),batch_size=len(vcn_test_all_class),
                                               shuffle=False)
 
 
