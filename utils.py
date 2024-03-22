@@ -31,7 +31,7 @@ def get_dataset(args):
                                       transform=apply_transform)
 
 
-        user_groups, user_groups_test = cifar_full_class_fill(train_dataset, test_dataset, args.num_orgnization, args.num_each_org_user)
+        user_groups, user_groups_test = cifar_full_class_fill(train_dataset, test_dataset, args.num_vcnnization, args.num_each_vcn_user)
 
     elif args.dataset == 'cifar100':
         data_dir = '../data/cifar100/'
@@ -51,7 +51,7 @@ def get_dataset(args):
                                       transform=apply_transform)
 
 
-        user_groups, user_groups_test = cifar100_full_class_fill(train_dataset, test_dataset, args.num_orgnization, args.num_each_org_user)
+        user_groups, user_groups_test = cifar100_full_class_fill(train_dataset, test_dataset, args.num_vcnnization, args.num_each_vcn_user)
 
     elif args.dataset == 'miniimagenet':
 
@@ -59,7 +59,7 @@ def get_dataset(args):
         test_dataset = MiniImagenet(root='../data/miniimagenet', train=False, resize= 84)
 
         user_groups, user_groups_test = miniimagenet_full_class_fill(train_dataset, test_dataset,
-                                                                         args.num_orgnization, args.num_each_org_user)
+                                                                         args.num_vcnnization, args.num_each_vcn_user)
 
     return train_dataset, test_dataset, user_groups , user_groups_test
 
@@ -97,15 +97,15 @@ def exp_details(args):
     print(f'    Global Rounds   : {args.epochs}\n')
 
     print('    Federated parameters:')
-    if args.orgiid:
-        print('    org IID')
+    if args.vcniid:
+        print('    vcn IID')
     else:
-        print('    org Non-IID')
+        print('    vcn Non-IID')
     if args.useriid:
         print('    user IID')
     else:
         print('    user Non-IID')
-    print(f'    Fraction of orgs  : {args.frac_orgs}')
+    print(f'    Fraction of vcns  : {args.frac_vcns}')
     print(f'    Fraction of users  : {args.frac_users}')
     print(f'    Fraction of train_support  : {args.frac_train_support}')
     print(f'    Fraction of train_query  : {args.frac_train_query}')
