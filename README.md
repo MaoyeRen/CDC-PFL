@@ -40,7 +40,7 @@ python main.py --gpu=0
 
 * To run the  experiment  with MiniImagenet using gpu:
 ```
-python main.py --model=vgg11 --dataset=miniimagenet --gpu=0 --orgiid=0 --useriid=1 --full_class_fill=1 --epochs=20000 --frac_orgs=1 --frac_users=0.1 --frac_train_support=0.1 --frac_train_query=0.1 --optimizer=sgd   --test_every=20000 --num_org=5 --num_each_org_user=[20]*5 --percentage=0.5 --update_lr=0.2 --meta_lr=0.01 --org_epoch=2 --num_classes=100
+python main.py --model=vgg11 --dataset=miniimagenet --gpu=0 --vcniid=0 --useriid=1 --full_class_fill=1 --epochs=20000 --frac_vcns=1 --frac_users=0.1 --frac_train_support=0.1 --frac_train_query=0.1 --optimizer=sgd   --test_every=20000 --num_vcn=5 --num_each_vcn_user=[20]*5 --percentage=0.5 --update_lr=0.2 --meta_lr=0.01 --vcn_epoch=2 --num_classes=100
 ```
 ## Pre-steps of using other datasets or distributions
 * Firstly using any of the federated cluster methods to get the clusters of clients
