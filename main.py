@@ -31,7 +31,7 @@ if __name__ == '__main__':
     logger = SummaryWriter('../logs')
 
     args = args_parser()
-    args.num_each_org_user = eval(str(args.num_each_org_user))
+    args.num_each_vcn_user = eval(str(args.num_each_vcn_user))
     exp_details(args)
 
     seed = args.seed
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     cv_loss, cv_acc = [], []
     val_loss_pre, counter = 0, 0
     test_accuracy_corr,test_accuracy_all, test_accuracy_new_corr, test_accuracy_new_all=[], [], [], []
-    args.num_users = sum(args.num_each_org_user)
+    args.num_users = sum(args.num_each_vcn_user)
 
 
     new_user_test_all_class = []
@@ -125,24 +125,24 @@ if __name__ == '__main__':
 
     for epoch in tqdm(range(args.epochs), ascii=" .oO0"):
         global_weights, all_local_losses = [], []
-        one_org_list_user_losses, all_org_losses=[], []
+        one_vcn_list_user_losses, all_vcn_losses=[], []
         if (epoch + 1) % args.print_every == 0:
             tqdm.write(f'\r\n | Global Training Round : {epoch + 1} |\r\n')
 
 
-        m = max(int(args.frac_orgs * args.num_orgnization), 1)
-        idxs_orgs = np.random.choice(range(args.num_orgnization), m, replace=False)
+        m = max(int(args.frac_vcns * args.num_vcnnization), 1)
+        idxs_vcns = np.random.choice(range(args.num_vcnnization), m, replace=False)
 
         global_model.train()
-        for org in idxs_orgs:
+        for vcn in idxs_vcns:
 
-            orgnization_weights = []
+            vcnnization_weights = []
 
 
-            m = max( int(args.frac_users * args.num_each_org_user[org]), 1)
-            idxs_users = np.random.choice( range( args.num_each_org_user[org] ), m, replace=False)
+            m = max( int(args.frac_users * args.num_each_vcn_user[vcn]), 1)
+            idxs_users = np.random.choice( range( args.num_each_vcn_user[vcn] ), m, replace=False)
 
-            for org_ep in range(args.org_epoch):
+            for vcn_ep in range(args.vcn_epoch):
                 avg_fast_weight = []
 
                 for idx in idxs_users:
@@ -151,9 +151,9 @@ if __name__ == '__main__':
                         pass
                     else:
                         local_model = LocalUpdate(args=args, dataset=train_dataset,
-                                                  idxs=copy.deepcopy(user_groups[org][idx]), logger=logger, device=device)
+                                                  idxs=copy.deepcopy(user_groups[vcn][idx]), logger=logger, device=device)
 
-                    if org_ep == 0:
+                    if vcn_ep == 0:
                         _,  _, fast_weights,_ = local_model.update_weights(
                             model=copy.deepcopy(global_model), global_round=epoch, local_epoch=args.local_ep,  train_period=train_period)
                     else:
@@ -187,7 +187,7 @@ if __name__ == '__main__':
                     pass
                 else:
                     local_model = LocalUpdate(args=args, dataset=train_dataset,
-                                              idxs=copy.deepcopy(user_groups[org][idx]), logger=logger, device=device)
+                                              idxs=copy.deepcopy(user_groups[vcn][idx]), logger=logger, device=device)
 
                 _, user_loss, _, grad = local_model.update_weights(
                     model=copy.deepcopy(per_model), global_round=epoch, local_epoch=args.local_ep, train_period=train_period)
@@ -199,32 +199,32 @@ if __name__ == '__main__':
                 del grad
                 torch.cuda.empty_cache()
 
-                one_org_list_user_losses.append(user_loss)
+                one_vcn_list_user_losses.append(user_loss)
 
             avg_per_grad = average_per_model_weights(avg_per_grad, len(idxs_users))
 
-            orgnization_weights = copy.deepcopy(global_model.net.parameters())
-            orgnization_weights = list(map(lambda p: p[1] - args.meta_lr * p[0], zip(avg_per_grad, orgnization_weights)))
+            vcnnization_weights = copy.deepcopy(global_model.net.parameters())
+            vcnnization_weights = list(map(lambda p: p[1] - args.meta_lr * p[0], zip(avg_per_grad, vcnnization_weights)))
             if global_weights == []:
-                global_weights = orgnization_weights
+                global_weights = vcnnization_weights
             else:
-                global_weights = add_per_model_weights(global_weights, orgnization_weights)
+                global_weights = add_per_model_weights(global_weights, vcnnization_weights)
 
-            del orgnization_weights
+            del vcnnization_weights
             torch.cuda.empty_cache()
 
-            all_org_losses.extend(one_org_list_user_losses)
+            all_vcn_losses.extend(one_vcn_list_user_losses)
 
     
 
         with torch.no_grad():
-            global_weights = average_per_model_weights(global_weights, args.num_orgnization)
+            global_weights = average_per_model_weights(global_weights, args.num_vcnnization)
 
         for i in range(len(global_model.net.parameters())):
             global_model.net.parameters()[i] = Parameter(global_weights[i])
 
-        all_org_losses_avg = sum(all_org_losses) / len(all_org_losses)
-        train_loss.append(all_org_losses_avg)
+        all_vcn_losses_avg = sum(all_vcn_losses) / len(all_vcn_losses)
+        train_loss.append(all_vcn_losses_avg)
 
         del global_weights
         torch.cuda.empty_cache()
@@ -239,35 +239,35 @@ if __name__ == '__main__':
         if (epoch + 1) % args.test_every == 0 or (epoch + 1) == args.epochs:
             list_test_accs_corr, list_test_accs_all, list_test_accs_new_corr, list_test_accs_new_all = [], [], [], []
 
-            each_org_test_accs_corresponding_class = [[] for _ in range(args.num_orgnization)]
-            each_org_test_accs_all_class = [[] for _ in range(args.num_orgnization)]
-            each_org_test_accs_new_corresponding_class = [[] for _ in range(args.num_orgnization)]
-            each_org_test_accs_new_all_class = [[] for _ in range(args.num_orgnization)]
+            each_vcn_test_accs_corresponding_class = [[] for _ in range(args.num_vcnnization)]
+            each_vcn_test_accs_all_class = [[] for _ in range(args.num_vcnnization)]
+            each_vcn_test_accs_new_corresponding_class = [[] for _ in range(args.num_vcnnization)]
+            each_vcn_test_accs_new_all_class = [[] for _ in range(args.num_vcnnization)]
 
-            for org in range(args.num_orgnization) :
+            for vcn in range(args.num_vcnnization) :
 
-                org_test_all_class = []
-                org_new_test_all_class = []
-                for j in range(args.num_each_org_user[org]):
-                    org_test_all_class.extend(user_groups_test[org][j])
-                    org_new_test_all_class.extend(
-                        user_groups_test[org][j][int(args.percentage * len(user_groups_test[org][j])):])
+                vcn_test_all_class = []
+                vcn_new_test_all_class = []
+                for j in range(args.num_each_vcn_user[vcn]):
+                    vcn_test_all_class.extend(user_groups_test[vcn][j])
+                    vcn_new_test_all_class.extend(
+                        user_groups_test[vcn][j][int(args.percentage * len(user_groups_test[vcn][j])):])
 
 
-                for org_ep in range(args.org_epoch):
+                for vcn_ep in range(args.vcn_epoch):
                     avg_fast_weight =[]
                     avg_fast_weights_new = []
 
-                    for idx in range( args.num_each_org_user[org] ):
+                    for idx in range( args.num_each_vcn_user[vcn] ):
 
                         if args.dataset == 'dbpedia':
                             pass
                         else:
-                            if org_ep == 0:
-                                fast_weights = test_inference_fastweight(args, copy.deepcopy(global_model), train_dataset, user_groups[org][idx],
+                            if vcn_ep == 0:
+                                fast_weights = test_inference_fastweight(args, copy.deepcopy(global_model), train_dataset, user_groups[vcn][idx],
                                                                                                 device)
                             else:
-                                fast_weights = test_inference_fastweight(args, copy.deepcopy(per_model), train_dataset, user_groups[org][idx],
+                                fast_weights = test_inference_fastweight(args, copy.deepcopy(per_model), train_dataset, user_groups[vcn][idx],
                                                                                            device)
 
                         if avg_fast_weight == []:
@@ -278,7 +278,7 @@ if __name__ == '__main__':
                         torch.cuda.empty_cache()
 
                     with torch.no_grad():
-                        avg_fast_weight = average_per_model_weights(avg_fast_weight, args.num_each_org_user[org])
+                        avg_fast_weight = average_per_model_weights(avg_fast_weight, args.num_each_vcn_user[vcn])
 
                     for i in range( len(per_model.net.parameters())):
                         per_model.net.parameters()[i] = Parameter(avg_fast_weight[i])
@@ -290,16 +290,16 @@ if __name__ == '__main__':
                     else:
                         test_accs_corresponding_class= test_inference(
                             args, copy.deepcopy(per_model), copy.deepcopy(per_model_new), train_dataset,
-                            user_groups[org][idx], test_dataset, org_test_all_class,
+                            user_groups[vcn][idx], test_dataset, vcn_test_all_class,
                             device)
 
-                    each_org_test_accs_corresponding_class[org].append(test_accs_corresponding_class[0])
+                    each_vcn_test_accs_corresponding_class[vcn].append(test_accs_corresponding_class[0])
 
 
-            mean_each_org_epoch_test_accs_corresponding_class = np.mean(each_org_test_accs_corresponding_class,0)
+            mean_each_vcn_epoch_test_accs_corresponding_class = np.mean(each_vcn_test_accs_corresponding_class,0)
 
 
-            test_accuracy_corr.append( mean_each_org_epoch_test_accs_corresponding_class[-1] )
+            test_accuracy_corr.append( mean_each_vcn_epoch_test_accs_corresponding_class[-1] )
 
 
         if args.test_every != args.print_every:
@@ -309,18 +309,18 @@ if __name__ == '__main__':
             tqdm.write(f'\nResult  after {epoch + 1} global rounds:')
             tqdm.write("Training Loss : {:.4f}".format(train_loss[-1]), end='\t\t')
 
-            print("Test Accuracy corr:", 100 * mean_each_org_epoch_test_accs_corresponding_class, end='\t\t')
+            print("Test Accuracy corr:", 100 * mean_each_vcn_epoch_test_accs_corresponding_class, end='\t\t')
 
         if (epoch + 1) % args.record_every == 0 or (epoch + 1) == args.epochs:
             PATH = '../save/model/{}_{}_{}_C[{}_{}_{}_{}]_Oiid[{}]_Uiid[{}]_F[{}]_E[{}_{}]_B[{}]_epoch[{}]_S[{}].pth'. \
-                format(args.dataset, args.model, args.epochs, args.frac_orgs, args.frac_users, args.frac_train_support, args.frac_train_query,
-                       args.orgiid, args.useriid, args.full_class_fill, args.org_epoch, args.local_ep, args.local_bs, (epoch + 1), args.seed)
+                format(args.dataset, args.model, args.epochs, args.frac_vcns, args.frac_users, args.frac_train_support, args.frac_train_query,
+                       args.vcniid, args.useriid, args.full_class_fill, args.vcn_epoch, args.local_ep, args.local_bs, (epoch + 1), args.seed)
 
             torch.save(global_model.state_dict(), PATH)
 
             file_name = '../save/objects/{}_{}_{}_C[[{}_{}_{}_{}]]_Oiid[{}]_Uiid[{}]_F[{}]_E[{}_{}]_B[{}]_S[{}].pkl'. \
-                format(args.dataset, args.model, args.epochs + args.continue_training_epoch, args.frac_orgs, args.frac_users, args.frac_train_support, args.frac_train_query,
-                       args.orgiid, args.useriid, args.full_class_fill, args.org_epoch, args.local_ep, args.local_bs, args.seed)
+                format(args.dataset, args.model, args.epochs + args.continue_training_epoch, args.frac_vcns, args.frac_users, args.frac_train_support, args.frac_train_query,
+                       args.vcniid, args.useriid, args.full_class_fill, args.vcn_epoch, args.local_ep, args.local_bs, args.seed)
 
             with open(file_name, 'wb') as f:
                 pickle.dump([train_loss, test_accuracy_corr, test_accuracy_all, test_accuracy_new_corr, test_accuracy_new_all], f)
