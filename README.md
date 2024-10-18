@@ -44,4 +44,18 @@ python main.py --model=vgg11 --dataset=miniimagenet --gpu=0 --vcniid=0 --useriid
 ```
 ## Pre-steps of using other datasets or distributions
 * Firstly using any of the federated cluster methods to get the clusters of clients
-* Secondly writing the code to input the clusters of the clients to virtual cluster nodes, in "sampling.py".    
+* Secondly writing the code to input the clusters of the clients to virtual cluster nodes, in "sampling.py".
+
+## Cite
+If you find our code useful for your research and applications, please cite us using this BibTeX:
+```bibtex
+@article{ren2023personalized,
+title={Personalized federated learning: A Clustered Distributed Co-Meta-Learning approach},
+author={Ren, Maoye and Wang, Zhe and Yu, Xinhai},
+journal={Information Sciences},
+volume={647},
+pages={119499},
+year={2023},
+publisher={Elsevier}
+}
+```
